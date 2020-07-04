@@ -3,11 +3,13 @@ cmake_minimum_required(VERSION 3.9)
 # list the header files
 set(HEADER_FILES
 	include/n-puzzle/N_Puzzle.h
+	include/n-puzzle/Priority_Queue.h
 )
 
 # list the source files
 set(SOURCE_FILES
 	src/n-puzzle/N_Puzzle.cpp
+	src/n-puzzle/Priority_Queue.cpp
 )
 
 # add library target
