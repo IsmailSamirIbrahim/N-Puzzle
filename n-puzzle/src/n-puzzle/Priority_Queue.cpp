@@ -1,13 +1,15 @@
 #include "n-puzzle/Priority_Queue.h"
 
+#include <utility>
+
 namespace np
 {
 	bool Priority_Queue::isEmpty()
 	{
-		return this->_size == -1;
+		return this->_size == static_cast<std::size_t>(-1);
 	}
 
-	size_t Priority_Queue::size()
+	std::size_t Priority_Queue::size()
 	{
 		return this->_size;
 	}
@@ -19,25 +21,26 @@ namespace np
 
 	Puzzle Priority_Queue::extractMinimum()
 	{
-		if (this->_size == -1)
+		if (isEmpty())
 			return Puzzle{};
 
 		Puzzle min = this->_data[0];
 
-		this->_data.erase(this->_data.begin());
+		this->_data[0] = this->_data[this->_size];
 		--this->_size;
 
-		this->minHeapify(0);
+		if (!isEmpty())
+			this->minHeapify(0);
 
 		return min;
 	}
 
 	void Priority_Queue::insert(const Puzzle& puzzle)
 	{
-		this->_data[this->_size] = val;
 		++this->_size;
+		this->_data[this->_size] = puzzle;
 
-		size_t idx = this->_size - 1;
+		std::size_t idx = this->_size;
 
 		while (idx > 0 && this->_data[this->parent(idx)] > this->_data[idx])
 		{
@@ -46,26 +49,26 @@ namespace np
 		}
 	}
 
-	size_t Priority_Queue::left(size_t idx)
+	std::size_t Priority_Queue::left(std::size_t idx)
 	{
 		return idx * 2;
 	}
 
-	size_t Priority_Queue::right(size_t idx)
+	std::size_t Priority_Queue::right(std::size_t idx)
 	{
 		return (idx * 2) + 1;
 	}
 
-	size_t Priority_Queue::parent(size_t idx)
+	std::size_t Priority_Queue::parent(std::size_t idx)
 	{
-		return floor(idx / 2);
+		return idx / 2;
 	}
 
-	void Priority_Queue::minHeapify(size_t idx)
+	void Priority_Queue::minHeapify(std::size_t idx)
 	{
-		size_t l = left(idx);
-		size_t r = left(idx);
-		size_t smallest = idx;
+		std::size_t l = left(idx);
+		std::size_t r = right(idx);
+		std::size_t smallest = idx;
 
 		if (l <= this->_size && (this->_data[l] < this->_data[idx]))
 			smallest = l;
@@ -73,7 +76,7 @@ namespace np
 			smallest = r;
 
 		if (smallest != idx) {
-			swap(this->_data[idx], this->_data[smallest]);
+			std::swap(this->_data[idx], this->_data[smallest]);
 			minHeapify(smallest);
 		}
 	}

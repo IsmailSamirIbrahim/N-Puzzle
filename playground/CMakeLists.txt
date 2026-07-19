@@ -26,10 +26,18 @@ if(WIN32)
 		PRIVATE
 			OS_WINDOWS=1
 	)
+	target_compile_options(playground
+		PRIVATE
+			/EHsc /W4 /WX
+	)
 elseif(UNIX)
 	target_compile_definitions(playground
 		PRIVATE
 			OS_LINUX=1
+	)
+	target_compile_options(playground
+		PRIVATE
+			-Wall -Werror
 	)
 endif()
 

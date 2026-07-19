@@ -1,90 +1,126 @@
 # N-Puzzle
 
-A C++17 project for exploring search algorithms for the sliding-tile puzzle. The
-project currently models a 3×3 puzzle state, calculates the Hamming-distance
-heuristic, validates tile movements, and includes a custom minimum-priority queue
-intended for informed search.
+N-Puzzle is a work-in-progress C++17 library for sliding-tile puzzle search. It
+currently contains the beginnings of a fixed 3×3 puzzle-state model, a Hamming
+distance heuristic, and a custom minimum-priority queue. The intended search
+algorithms are breadth-first search (BFS) and A*.
 
-> [!NOTE]
-> This repository is a work in progress. The public solver interface and search
-> loop are not implemented yet, and the current sources contain compile errors.
-> See [Project status](#project-status) for details.
+> [!IMPORTANT]
+> The project builds, but it is not a working solver yet. There is no public
+> solver API or implemented search loop. The commands and API below describe the
+> currently supported project layout.
 
-## Planned algorithms
+## Puzzle model
 
-- A* search using Hamming distance as a heuristic
-- Breadth-first search (BFS)
+The current model has these fixed rules:
+
+- Boards are 3×3 (`np::WIDTH == 3` and `np::HEIGHT == 3`).
+- `0` represents the empty space.
+- The goal state is `1, 2, 3, 4, 5, 6, 7, 8, 0` in row-major order.
+- Hamming distance counts misplaced non-zero tiles.
+- Internally, `UP`, `DOWN`, `LEFT`, and `RIGHT` describe movement of the empty
+  space. Movement is not part of the public API yet.
+
+Board sizes other than 3×3 are not supported. Generalizing the state model to
+N×N boards is possible future work, not current behavior.
 
 ## Requirements
 
 - A C++17-compatible compiler
 - [CMake](https://cmake.org/) 3.9 or newer
 
-The CMake configuration supports Windows and Unix-like systems. The library is
-built with strict compiler warnings (`/W4 /WX` on MSVC and `-Wall -Werror` on
-Unix-like systems).
+CMake disables compiler-specific C++ extensions. Both targets enable strict
+warnings and treat them as errors: `/W4 /WX` with MSVC and `-Wall -Werror` on
+Unix-like systems.
 
-## Build
+## Configure and build
 
-From the repository root, configure and build the project:
+From the repository root, configure and build with:
 
 ```sh
 cmake -S . -B build
 cmake --build build
 ```
 
-For multi-configuration generators such as Visual Studio, choose a configuration
-when building:
+For a multi-configuration generator such as Visual Studio, select a
+configuration explicitly:
 
 ```sh
+cmake --build build --config Debug
 cmake --build build --config Release
 ```
 
-Build artifacts are written below `build/bin`, with a configuration subdirectory
-when the selected generator uses one.
+Build artifacts are placed below `build/bin`, with a configuration subdirectory
+when the generator uses one.
 
-The build defines two targets:
+The project defines these targets:
 
-- `n-puzzle` — the puzzle library
-- `playground` — a small executable for experimenting with the library
+- `n-puzzle` — the library
+- `playground` — a small executable linked to the library
+- `IsmailSamirIsmail::n-puzzle` — an alias for the library target
 
-Once the current compile errors are resolved, run the playground executable from
-the generated binary directory. For example, with a Visual Studio Release build:
+Both targets compile as C++17 with warnings treated as errors. The priority queue
+still has behavioral limitations that are tracked separately from build support.
 
-```powershell
-.\build\bin\Release\playground.exe
-```
+## Current public API
 
-## Current API
-
-Include the main puzzle header and construct a state from a 3×3 matrix. The value
-`0` represents the empty tile:
+The only meaningful public operation is constructing and comparing fixed-size
+puzzle states. Include the main header and pass a 3×3 matrix:
 
 ```cpp
-#include <n-puzzle/N_Puzzle.h>
-
+#include <cstddef>
 #include <vector>
+
+#include <n-puzzle/N_Puzzle.h>
 
 int main()
 {
-    std::vector<std::vector<std::size_t>> tiles{
+    const std::vector<std::vector<std::size_t>> tiles{
         {1, 2, 3},
         {4, 0, 6},
         {7, 5, 8},
     };
 
-    np::Puzzle puzzle{tiles};
+    const np::Puzzle puzzle{tiles};
 }
 ```
 
-The CMake target can be linked from another target in this source tree:
+To consume the library from another target in this source tree:
 
 ```cmake
 target_link_libraries(your_target PRIVATE IsmailSamirIsmail::n-puzzle)
 ```
 
-At present, puzzle movement and goal-checking methods are private, so constructing
-and comparing states is the extent of the usable public puzzle API.
+Important current limitations:
+
+- Construction does not validate matrix dimensions, tile range, uniqueness, or
+  solvability. Callers must not rely on malformed input being rejected.
+- Goal checks, Hamming distance, movement, and board inspection are private.
+- There is no BFS or A* entry point.
+- There is no solution-result type or sequence-of-moves result.
+- Direction semantics are internal and may not be used through the public API.
+
+## Playground
+
+The `playground` target is currently only a placeholder. Its example constructs
+an invalid all-zero board and prints `Hello, World!`; it does not solve or display
+a puzzle. A multi-configuration build places the Debug executable at:
+
+```powershell
+.\build\bin\Debug\playground.exe
+```
+
+An end-to-end solver example is tracked as separate future work.
+
+## Tests
+
+There is currently no automated test target and no CTest suite, so a successful
+build must not be reported as passing tests. After code changes, configure and
+build the project, treat compiler warnings as failures, and run `playground` only
+when it meaningfully exercises the changed behavior.
+
+Automated coverage for validation, movement, state identity, the priority queue,
+BFS, and A* remains future work.
 
 ## Project structure
 
@@ -92,25 +128,30 @@ and comparing states is the extent of the usable public puzzle API.
 .
 ├── CMakeLists.txt
 ├── n-puzzle/
+│   ├── CMakeLists.txt
 │   ├── include/n-puzzle/    # Public library headers
 │   └── src/n-puzzle/        # Library implementation
-└── playground/
-    └── src/playground.cpp   # Example executable
+├── playground/
+│   ├── CMakeLists.txt
+│   └── src/playground.cpp   # Placeholder executable
+└── README.md
 ```
 
-## Project status
+## Implementation status
 
-The repository provides the beginnings of the puzzle model and priority queue,
-but it is not yet a working solver. Known gaps include:
+The repository is an early implementation and intentionally remains scoped to
+3×3 boards. Outstanding work includes:
 
-- fixing compilation errors in `N_Puzzle.cpp` and `Priority_Queue.cpp`;
-- validating puzzle dimensions, tile values, and solvability;
-- exposing a public solver API and returning the sequence of moves;
-- implementing the A* and BFS search loops;
-- supporting board sizes other than the currently fixed 3×3 layout;
-- adding automated tests and a meaningful playground example.
+- correcting the remaining behavioral limitations in the priority queue;
+- validating dimensions, tile values, uniqueness, and solvability;
+- exposing a safe public state and movement API;
+- implementing BFS and A* with a documented solution result;
+- adding automated tests and a meaningful playground example; and
+- optionally generalizing the model beyond 3×3 after the fixed-size solver is
+  complete.
 
 ## Contributing
 
-Contributions are welcome. Please keep changes compatible with C++17 and add
-tests for new puzzle behavior or search algorithms where possible.
+Keep changes compatible with standard C++17, preserve the `np` namespace and
+public include layout, and avoid compiler-specific language extensions. Once a
+test target exists, add or update focused tests for new behavior.

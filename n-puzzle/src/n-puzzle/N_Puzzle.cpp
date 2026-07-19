@@ -1,13 +1,13 @@
 #include "n-puzzle/N_Puzzle.h"
 
+#include <utility>
+
 namespace np
 {
-	using namespace std;
-
-	Puzzle::Puzzle(const vector<vector<size_t>>& fPuzzle)
+	Puzzle::Puzzle(const std::vector<std::vector<std::size_t>>& fPuzzle)
 	{
-		for (size_t i = 0; i < HEIGHT; ++i)
-			for (size_t j = 0; j < WIDTH; ++j)
+		for (std::size_t i = 0; i < HEIGHT; ++i)
+			for (std::size_t j = 0; j < WIDTH; ++j)
 				this->_data[i][j] = fPuzzle[i][j];
 
 		this->_hashValue = puzzleToString();
@@ -22,8 +22,8 @@ namespace np
 
 	Puzzle::Puzzle(const Puzzle& rhs)
 	{
-		for (size_t i = 0; i < HEIGHT; ++i)
-			for (size_t j = 0; j < WIDTHl; ++j)
+		for (std::size_t i = 0; i < HEIGHT; ++i)
+			for (std::size_t j = 0; j < WIDTH; ++j)
 				this->_data[i][j] = rhs._data[i][j];
 
 		this->_hashValue = rhs._hashValue;
@@ -37,8 +37,8 @@ namespace np
 
 	Puzzle& Puzzle::operator=(const Puzzle& rhs)
 	{
-		for (size_t i = 0; i < HEIGHT; ++i)
-			for (size_t j = 0; j < WIDTHl; ++j)
+		for (std::size_t i = 0; i < HEIGHT; ++i)
+			for (std::size_t j = 0; j < WIDTH; ++j)
 				this->_data[i][j] = rhs._data[i][j];
 
 		this->_hashValue = rhs._hashValue;
@@ -70,12 +70,12 @@ namespace np
 
 	// private functions
 
-	string Puzzle::puzzleToString()
+	std::string Puzzle::puzzleToString()
 	{
-		string result = "";
-		for (size_t i = 0; i < HEIGHT; ++i)
-			for (size_t j = 0; j < WIDTH; ++j)
-				result += to_string(this->_data[i][j]);
+		std::string result = "";
+		for (std::size_t i = 0; i < HEIGHT; ++i)
+			for (std::size_t j = 0; j < WIDTH; ++j)
+				result += std::to_string(this->_data[i][j]);
 		
 		return result;
 	}
@@ -84,9 +84,9 @@ namespace np
 	{
 		Empty_Pos_Kind result = Empty_Pos_Kind::NONE;
 
-		for (size_t i = 0; i < HEIGHT; ++i)
+		for (std::size_t i = 0; i < HEIGHT; ++i)
 		{
-			for (size_t j = 0; j < WIDTH; ++j)
+			for (std::size_t j = 0; j < WIDTH; ++j)
 			{
 				if (this->_data[i][j] == 0)
 				{
@@ -113,13 +113,13 @@ namespace np
 		return result;
 	}
 
-	pair<size_t, size_t> Puzzle::emptyPos()
+	std::pair<std::size_t, std::size_t> Puzzle::emptyPos()
 	{
-		pair<size_t, size_t> result;
+		std::pair<std::size_t, std::size_t> result{};
 
-		for (size_t i = 0; i < HEIGHT; ++i)
+		for (std::size_t i = 0; i < HEIGHT; ++i)
 		{
-			for (size_t j = 0; j < WIDTH; ++j)
+			for (std::size_t j = 0; j < WIDTH; ++j)
 			{
 				if (this->_data[i][j] == 0)
 				{
@@ -134,13 +134,13 @@ namespace np
 		return result;
 	}
 
-	size_t Puzzle::calculateHammingDistance()
+	std::size_t Puzzle::calculateHammingDistance()
 	{
-		size_t result = 0;
+		std::size_t result = 0;
 
-		for (size_t i = 0; i < HEIGHT; ++i)
+		for (std::size_t i = 0; i < HEIGHT; ++i)
 		{
-			for (size_t j = 0; j < WIDTH; ++j)
+			for (std::size_t j = 0; j < WIDTH; ++j)
 			{
 				if (this->_data[i][j] != 0 && this->_data[i][j] != i * WIDTH + j + 1)
 					++result;
@@ -152,11 +152,11 @@ namespace np
 
 	bool Puzzle::movmentIsValid(Direction direction)
 	{
-		if (this->emptyPosKind == Empty_Pos_Kind::CENTER)
+		if (this->_emptyPosKind == Empty_Pos_Kind::CENTER)
 		{
 			return true;
 		}
-		else if (this->emptyPosKind == Empty_Pos_Kind::CORNER)
+		else if (this->_emptyPosKind == Empty_Pos_Kind::CORNER)
 		{
 			if (this->_emptyI == 0 && this->_emptyJ == 0 && (direction == Direction::RIGHT || direction == Direction::DOWN))
 				return true;
@@ -171,11 +171,11 @@ namespace np
 		{
 			if (this->_emptyI == 0 && (direction == Direction::LEFT || direction == Direction::RIGHT || direction == Direction::DOWN))
 				return true;
-			else if (this->_emptyj == 0 && (direction == Direction::UP || direction == Direction::DOWN || direction == Direction::RIGHT))
+			else if (this->_emptyJ == 0 && (direction == Direction::UP || direction == Direction::DOWN || direction == Direction::RIGHT))
 				return true;
-			else if (this->_emptyi == HEIGHT - 1 && (direction == Direction::LEFT || direction == Direction::RIGHT || direction == Direction::UP))
+			else if (this->_emptyI == HEIGHT - 1 && (direction == Direction::LEFT || direction == Direction::RIGHT || direction == Direction::UP))
 				return true;
-			else if (this->_emptyj == WIDTH - 1 && (direction == Direction::UP || direction == Direction::DOWN || direction == Direction::LEFT))
+			else if (this->_emptyJ == WIDTH - 1 && (direction == Direction::UP || direction == Direction::DOWN || direction == Direction::LEFT))
 				return true;
 		}
 		return false;
@@ -183,9 +183,9 @@ namespace np
 
 	bool Puzzle::isGoal()
 	{
-		for (size_t i = 0; i < HEIGHT; ++i)
+		for (std::size_t i = 0; i < HEIGHT; ++i)
 		{
-			for (size_t j = 0; j < WIDTH; ++j)
+			for (std::size_t j = 0; j < WIDTH; ++j)
 			{
 				if (this->_data[i][j] != 0 && this->_data[i][j] != i * WIDTH + j + 1)
 					return false;
@@ -202,28 +202,28 @@ namespace np
 		{
 			if (direction == Direction::UP)
 			{
-				swap(obj._data[obj._emptyI][obj._emptyJ], obj._data[obj._emptyI - 1][obj._emptyJ]);
+				std::swap(obj._data[obj._emptyI][obj._emptyJ], obj._data[obj._emptyI - 1][obj._emptyJ]);
 				--obj._emptyI;
 				++obj._gVal;
 				obj._hashValue = obj.puzzleToString();
 			}
 			else if (direction == Direction::DOWN)
 			{
-				swap(obj._data[obj._emptyI][obj._emptyJ], obj._data[obj._emptyI + 1][obj._emptyJ]);
+				std::swap(obj._data[obj._emptyI][obj._emptyJ], obj._data[obj._emptyI + 1][obj._emptyJ]);
 				++obj._emptyI;
 				++obj._gVal;
 				obj._hashValue = obj.puzzleToString();
 			}
 			else if (direction == Direction::LEFT)
 			{
-				swap(obj._data[obj._emptyI][obj._emptyJ], obj._data[obj._emptyI][obj._emptyJ - 1]);
+				std::swap(obj._data[obj._emptyI][obj._emptyJ], obj._data[obj._emptyI][obj._emptyJ - 1]);
 				--obj._emptyJ;
 				++obj._gVal;
 				obj._hashValue = obj.puzzleToString();
 			}
 			else if (direction == Direction::RIGHT)
 			{
-				swap(obj._data[obj._emptyI][obj._emptyJ], obj._data[obj._emptyI][obj._emptyJ + 1]);
+				std::swap(obj._data[obj._emptyI][obj._emptyJ], obj._data[obj._emptyI][obj._emptyJ + 1]);
 				++obj._emptyJ;
 				++obj._gVal;
 				obj._hashValue = obj.puzzleToString();
